@@ -132,51 +132,58 @@ class BookingRepository extends BaseRepository
         $consumer_type = $user->userMeta->consumer_type;
         if ($user->user_type == env('CUSTOMER_ROLE_ID')) {
             $cuser = $user;
-
-            if (!isset($data['from_language_id'])) {
-                $response['status'] = 'fail';
-                $response['message'] = "Du måste fylla in alla fält";
-                $response['field_name'] = "from_language_id";
-                return $response;
-            }
+            Validator::make(
+                [
+                    'from_language_id' => $data['from_language_id']
+                ],
+                [
+                    'from_language_id' => 'required',
+                ],
+                [
+                    'from_language_id.required' => 'Du måste fylla in alla fält'
+                ]
+            )->validate();
+            
             if ($data['immediate'] == 'no') {
-                if (isset($data['due_date']) && $data['due_date'] == '') {
-                    $response['status'] = 'fail';
-                    $response['message'] = "Du måste fylla in alla fält";
-                    $response['field_name'] = "due_date";
-                    return $response;
-                }
-                if (isset($data['due_time']) && $data['due_time'] == '') {
-                    $response['status'] = 'fail';
-                    $response['message'] = "Du måste fylla in alla fält";
-                    $response['field_name'] = "due_time";
-                    return $response;
-                }
-                if (!isset($data['customer_phone_type']) && !isset($data['customer_physical_type'])) {
-                    $response['status'] = 'fail';
-                    $response['message'] = "Du måste göra ett val här";
-                    $response['field_name'] = "customer_phone_type";
-                    return $response;
-                }
-                if (isset($data['duration']) && $data['duration'] == '') {
-                    $response['status'] = 'fail';
-                    $response['message'] = "Du måste fylla in alla fält";
-                    $response['field_name'] = "duration";
-                    return $response;
-                }
+                Validator::make(
+                    [
+                        'due_date' => $data['due_date'],
+                        'due_time' => $data['due_time'],
+                        'customer_phone_type' => $data['customer_phone_type'],
+                        'customer_physical_type' => $data['customer_physical_type'],
+                        'customer_physical_type' => $data['customer_physical_type'],
+                        'duration' => $data['duration'],
+                    ],
+                    [
+                        'due_date' => 'required|date',
+                        'due_time' => 'required',
+                        'customer_phone_type' => 'required',
+                        'customer_physical_type' => 'required',
+                        'duration' => 'required',
+                    ],
+                    [
+                        'due_date.required' => 'Du måste fylla in alla fält',
+                        'due_time.required' => 'Du måste fylla in alla fält',
+                        'customer_phone_type.required' => 'Du måste göra ett val här',
+                        'customer_physical_type.required' => 'Du måste fylla in alla fält',
+                        'duration.required' => 'Du måste fylla in alla fält',
+                    ]
+                    
+                )->validate();
             } else {
-                if (isset($data['duration']) && $data['duration'] == '') {
-                    $response['status'] = 'fail';
-                    $response['message'] = "Du måste fylla in alla fält";
-                    $response['field_name'] = "duration";
-                    return $response;
-                }
+                Validator::make(
+                    [
+                        'duration' => $data['duration']
+                    ],
+                    [
+                        'duration' => 'required',
+                    ],
+                    [
+                        'duration.required' => 'Du måste fylla in alla fält',
+                    ]
+                )->validate();
             }
-            if (isset($data['customer_phone_type'])) {
-                $data['customer_phone_type'] = 'yes';
-            } else {
-                $data['customer_phone_type'] = 'no';
-            }
+            $data['customer_phone_type'] = isset($data['customer_phone_type'])? "yes" : "no";
 
             if (isset($data['customer_physical_type'])) {
                 $data['customer_physical_type'] = 'yes';
